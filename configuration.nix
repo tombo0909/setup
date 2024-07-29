@@ -41,11 +41,12 @@
   };
   
    
-  nix.gc = {
-    automatic = true;
-    dates = "hourly";
-    options = "--delete-older-than 5d +15";
-  };
+#  nix.gc = {
+#    automatic = true;
+#    dates = "hourly";
+#    options = "--delete-older-than 60d";
+#  };
+ 
   nix.optimise.automatic = true;
   nix.optimise.dates = [ "12:00" ]; # Optional; allows customizing optimisation schedule
     
@@ -166,7 +167,7 @@ IdleActionSec=5s
   services.cron = {
     enable = true;
     systemCronJobs = [
-     "*/6 * * * * tom /home/tom/check-battery.sh"
+     "*/6 * * * * tom ~/.config/scripts/check-battery.sh"
 
    ];
   };
@@ -238,6 +239,9 @@ IdleActionSec=5s
      xorg.xmodmap
      maim
      xdotool
+     xdg-utils
+
+
   (vscode-with-extensions.override {
     vscodeExtensions = with vscode-extensions; [
       ms-python.python
@@ -284,8 +288,8 @@ IdleActionSec=5s
   bind 'set bell-style none'
    
 export PS1='\[\033[1;38;2;255;140;0m\]\u@\h\[\033[1;37m\]:\[\033[1;38;2;255;140;0m\]\w\[\033[00m\]\$ '
-
-     '';
+alias open='xdg-open'
+   '';
   };
 
   
@@ -329,7 +333,7 @@ export PS1='\[\033[1;38;2;255;140;0m\]\u@\h\[\033[1;37m\]:\[\033[1;38;2;255;140;
   
   home.file.".config/betterlockscreen/betterlockscreenrc" = {
     text = ''
-  locktext="Type password to unlock..."
+  locktext="Type password to unlockkk..."
            '';
     };
 
