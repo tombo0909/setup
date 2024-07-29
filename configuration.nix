@@ -5,16 +5,6 @@
 { config, lib, pkgs, ... }:
 
 
-let
-  notifyScript = pkgs.writeScript "low_battery_notify.sh" ''
-#!/usr/bin/env
-${pkgs.bash}/bin/bash touch /tmp/www
-#${pkgs.bash}/bin/bash export DISPLAY=":0"
-${pkgs.libnotify}/bin/notify-send "test"
- '';
-
-in
-
 
 {  
   imports =
@@ -54,7 +44,7 @@ in
   nix.gc = {
     automatic = true;
     dates = "hourly";
-    options = "--delete-generations +15";
+    options = "--delete-older-than 5d +15";
   };
   nix.optimise.automatic = true;
   nix.optimise.dates = [ "12:00" ]; # Optional; allows customizing optimisation schedule
@@ -81,9 +71,7 @@ in
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.windowManager.i3.enable = true;
- # services.xserver.displayManager.sessionCommands = "xset +dpms; xset dpms 0 0 540; xset s 0 0;";
-
-
+  services.xserver.windowManager.i3.configFile = /home/tom/.config/i3/config;
 
   services.xserver.displayManager.sessionCommands = ''
     ${pkgs.xorg.xmodmap}/bin/xmodmap "${pkgs.writeText  "xkb-layout" ''
@@ -257,11 +245,6 @@ IdleActionSec=5s
     })
   ];
 
-  services.udev.packages = [ pkgs.libnotify ];
- services.udev.extraRules = ''
-  #SUBSYSTEM=="usb", ACTION=="add", RUN+="${notifyScript}"
- # ACTION=="add", SUBSYSTEM=="usb", DRIVER=="usb", ATTR{power/wakeup}="enabled"
- ''; 
 
   fonts.packages = with pkgs; [
     font-awesome
@@ -279,7 +262,10 @@ IdleActionSec=5s
 
   
   home-manager.users.tom = { pkgs, ... }: {
-   home.packages = [ pkgs.atool pkgs.httpie ];
+   home.packages = [ 
+   pkgs.atool
+   pkgs.httpie
+   ];
    
    programs.bash = {
         enable = true;
@@ -326,11 +312,46 @@ export PS1='\[\033[1;38;2;255;140;0m\]\u@\h\[\033[1;37m\]:\[\033[1;38;2;255;140;
 
   programs.git = {
     enable = true;
-    userName  = "tombo";
+    userName  = "tombo09";
     userEmail = "regular.tb@gmail.com";
   };
 
+  programs.kitty = {
+    enable = true;
+        extraConfig = ''
+      # Setzen Sie Ihre zusätzlichen Kitty-Konfigurationen hier
+      enable_audio_bell no
+      font_size 12
+      background #000000
+   '';
+   };
 
+  
+  home.file.".config/betterlockscreen/betterlockscreenrc" = {
+    text = ''
+  locktext="Type password to unlock..."
+           '';
+    };
+
+
+  home.file.".config/keepassxc/keepassxc.ini" = {
+    text = ''
+    [General]
+    ConfigVersion=2
+
+    [Browser]
+    CustomProxyLocation=
+
+    [PasswordGenerator]
+    AdditionalChars=
+    ExcludedChars=
+    Lenght=25
+
+    [Security]
+    LockDatabaseIdle=true
+    LockDatabaseIdleSecond=240
+      '';
+  };
 
    # The state version is required and should stay at the version you
    # originally installed.
