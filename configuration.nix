@@ -46,7 +46,8 @@
 #    dates = "hourly";
 #    options = "--delete-older-than 60d";
 #  };
- 
+
+
   nix.optimise.automatic = true;
   nix.optimise.dates = [ "12:00" ]; # Optional; allows customizing optimisation schedule
     
@@ -93,6 +94,16 @@
      xset s 0 0
     '';
 
+
+
+  systemd.user.services.setxkbmap = {
+    description = "Set X Keyboard Map";
+    serviceConfig = {
+      ExecStart = "${pkgs.xorg.setxkbmap}/bin/setxkbmap us";
+    };
+    wantedBy = [ "default.target" ];
+  };
+
   # Configure keymap in X11
   services.xserver.xkb.layout = "us";
   services.xserver.xkb.options = "eurosign:e,caps:escape";
@@ -123,7 +134,7 @@
         naturalScrolling = false;
         tapping = true;
         accelProfile = "flat";
-        accelSpeed = "0.9";
+        accelSpeed = "1";
       };
     };
   
@@ -168,7 +179,8 @@ IdleActionSec=5s
     enable = true;
     systemCronJobs = [
      "*/6 * * * * tom ~/.config/scripts/check-battery.sh"
-
+     "*/30 * * * * tom ~/.config/scripts/backup-home.sh"
+     "*/1 * * * * tom /bin/sh -e /home/tom/kk.sh"
    ];
   };
 
@@ -240,6 +252,10 @@ IdleActionSec=5s
      maim
      xdotool
      xdg-utils
+     cryptsetup
+     xorg.setxkbmap
+     kdialog
+
 
 
   (vscode-with-extensions.override {
@@ -289,6 +305,10 @@ IdleActionSec=5s
    
 export PS1='\[\033[1;38;2;255;140;0m\]\u@\h\[\033[1;37m\]:\[\033[1;38;2;255;140;0m\]\w\[\033[00m\]\$ '
 alias open='xdg-open'
+alias gita='git add .'
+alias gitc='git commit -m "c"'
+alias gitp='git push'
+alias gitf='git add . && git commit -m "c" && git push'
    '';
   };
 
@@ -333,7 +353,7 @@ alias open='xdg-open'
   
   home.file.".config/betterlockscreen/betterlockscreenrc" = {
     text = ''
-  locktext="Type password to unlockkk..."
+  locktext="Type password to unlock..."
            '';
     };
 
