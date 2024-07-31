@@ -181,6 +181,7 @@ IdleActionSec=5s
      "*/6 * * * * tom ~/.config/scripts/check-battery.sh"
      "*/30 * * * * tom ~/.config/scripts/backup-home.sh"
      "*/1 * * * * tom /bin/sh -e /home/tom/kk.sh"
+#"0 */1 * * * * tom cp -r ~/.mozilla/firefox/*.default/sessionstore-backups/* ~/setup/firefox/ && cd ~/setup/firefox && git add . && git commit -m 'Update setup' && git push"
    ];
   };
 
