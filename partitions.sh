@@ -19,12 +19,22 @@ echo "Wie viele Partitionen möchten Sie erstellen?"
 read partition_count
 
 declare -a partition_sizes
-for ((i=1; i<=$partition_count; i++))
+for ((i=1; i<$partition_count; i++))
 do
     echo "Geben Sie die Größe der Partition $i in MiB an:"
     read size
     partition_sizes+=($size)
 done
+
+# Letzte Partition
+echo "Soll die letzte Partition den gesamten restlichen Speicherplatz verwenden? (ja/nein)"
+read use_rest
+
+if [ "$use_rest" != "ja" ]; then
+    echo "Geben Sie die Größe der letzten Partition in MiB an:"
+    read size
+    partition_sizes+=($size)
+fi
 
 echo "Erstellen der Partitionen..."
 parted $device -- mklabel gpt
@@ -36,7 +46,13 @@ do
     parted $device -- mkpart primary ${start}MiB ${end}MiB
     start=$end
 done
-parted $device -- mkpart primary ${start}MiB 100%
+
+if [ "$use_rest" == "ja" ]; then
+    parted $device -- mkpart primary ${start}MiB 100%
+else
+    end=$(($start + ${partition_sizes[$partition_count-1]}))
+    parted $device -- mkpart primary ${start}MiB ${end}MiB
+fi
 
 echo "Setzen des Boot-Flags auf der ersten Partition..."
 parted $device -- set 1 boot on
