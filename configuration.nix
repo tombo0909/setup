@@ -34,7 +34,7 @@
       enable = true;
       networks = {
         "FRITZ!Box 7530 KH" = {
-          psk = "AralHat2407Auf";
+          psk = "";
         };
       };
     };
