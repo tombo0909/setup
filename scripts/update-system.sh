@@ -268,6 +268,12 @@ if [[ $update_answer =~ ^[Yy]$ ]]; then
     # Systempakete aktualisieren
     sudo nixos-rebuild switch --upgrade > /dev/null
    
+#------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
 
 set -euo pipefail
 
