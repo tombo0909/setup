@@ -58,9 +58,12 @@ fi
 echo "Setzen des Boot-Flags auf der ersten Partition..."
 parted $device -- set 1 boot on
 
+# Hier nehmen wir an, dass die Root-Partition die zweite Partition ist
+root_partition="${device}p2"
+
 echo "Verschlüsseln der Root-Partition..."
-cryptsetup luksFormat ${device}p2
-cryptsetup open ${device}p2 cryptroot
+cryptsetup luksFormat $root_partition
+cryptsetup open $root_partition cryptroot
 
 echo "Formatieren der Partitionen und Label zuweisen..."
 mkfs.fat -F 32 ${device}p1
