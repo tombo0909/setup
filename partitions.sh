@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <device>"
     exit 1
@@ -36,12 +37,18 @@ if [ "$use_rest" != "ja" ]; then
     partition_sizes+=($size)
 fi
 
-# Verschlüssele die gesamte Festplatte
-echo "Verschlüsseln der gesamten Festplatte..."
-cryptsetup luksFormat $device
-cryptsetup open $device cryptroot
+# Erstelle eine Partition, die den gesamten Speicher der Festplatte einnimmt
+echo "Erstellen der Partition..."
+parted $device -- mklabel gpt
+parted $device -- mkpart primary 1MiB 100%
 
-# Erstelle ein virtuelles Partitionierungsschema auf der verschlüsselten Festplatte
+# Verschlüssele die gesamte Partition
+partition="${device}p1"
+echo "Verschlüsseln der Partition..."
+cryptsetup luksFormat $partition
+cryptsetup open $partition cryptroot
+
+# Erstelle ein physisches Volume, eine Volume-Gruppe und logische Volumes innerhalb der verschlüsselten Partition
 pvcreate /dev/mapper/cryptroot
 vgcreate vgcrypt /dev/mapper/cryptroot
 
