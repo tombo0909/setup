@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <device>"
     exit 1
@@ -58,12 +59,12 @@ echo "Setzen des Boot-Flags auf der ersten Partition..."
 parted $device -- set 1 boot on
 
 echo "Verschlüsseln der Root-Partition..."
-cryptsetup luksFormat ${device}2
-cryptsetup open ${device}2 cryptroot
+cryptsetup luksFormat ${device}p2
+cryptsetup open ${device}p2 cryptroot
 
 echo "Formatieren der Partitionen und Label zuweisen..."
-mkfs.fat -F 32 ${device}1
-fatlabel ${device}1 NIXBOOT
+mkfs.fat -F 32 ${device}p1
+fatlabel ${device}p1 NIXBOOT
 mkfs.ext4 /dev/mapper/cryptroot -L NIXROOT
 
 echo "Mounten der Partitionen..."
