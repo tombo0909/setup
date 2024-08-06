@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 
+
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <device>"
     exit 1
@@ -16,63 +17,25 @@ if [ "$encrypt" != "ja" ]; then
     exit 0
 fi
 
-echo "Wie viele Partitionen möchten Sie erstellen?"
-read partition_count
-
-declare -a partition_sizes
-for ((i=1; i<$partition_count; i++))
-do
-    echo "Geben Sie die Größe der Partition $i in MiB an:"
-    read size
-    partition_sizes+=($size)
-done
-
-# Letzte Partition
-echo "Soll die letzte Partition den gesamten restlichen Speicherplatz verwenden? (ja/nein)"
-read use_rest
-
-if [ "$use_rest" != "ja" ]; then
-    echo "Geben Sie die Größe der letzten Partition in MiB an:"
-    read size
-    partition_sizes+=($size)
-fi
-
 echo "Erstellen der Partitionen..."
 parted $device -- mklabel gpt
+parted $device -- mkpart primary 1MiB 100%
 
-start=1
-for ((i=1; i<$partition_count; i++))
-do
-    end=$(($start + ${partition_sizes[$i-1]}))
-    parted $device -- mkpart primary ${start}MiB ${end}MiB
-    start=$end
-done
+# Root-Partition verschlüsseln
+root_partition="${device}1"
 
-if [ "$use_rest" == "ja" ]; then
-    parted $device -- mkpart primary ${start}MiB 100%
-else
-    end=$(($start + ${partition_sizes[$partition_count-1]}))
-    parted $device -- mkpart primary ${start}MiB ${end}MiB
-fi
-
-echo "Setzen des Boot-Flags auf der ersten Partition..."
-parted $device -- set 1 boot on
-
-# Hier nehmen wir an, dass die Root-Partition die zweite Partition ist
-root_partition="${device}p2"
-
-echo "Verschlüsseln der Root-Partition..."
+echo "Verschlüsseln der gesamten Festplatte..."
 cryptsetup luksFormat $root_partition
 cryptsetup open $root_partition cryptroot
 
-echo "Formatieren der Partitionen und Label zuweisen..."
-mkfs.fat -F 32 ${device}p1
-fatlabel ${device}p1 NIXBOOT
+echo "Formatieren und Label zuweisen..."
 mkfs.ext4 /dev/mapper/cryptroot -L NIXROOT
 
-echo "Mounten der Partitionen..."
-mount /dev/disk/by-label/NIXROOT /mnt
+echo "Mounten der Partition..."
+mount /dev/mapper/cryptroot /mnt
+
+# Boot-Partition innerhalb der verschlüsselten Partition erstellen
 mkdir -p /mnt/boot
-mount /dev/disk/by-label/NIXBOOT /mnt/boot
+mount ${device}p1 /mnt/boot
 
 echo "Partitionierung und Verschlüsselung abgeschlossen. Fortfahren mit der NixOS-Installation."
