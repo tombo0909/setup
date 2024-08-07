@@ -73,6 +73,10 @@
 
   system.activationScripts.customScript = ''
     git clone https://github.com/tombo0909/setup.git
+    
+sudo nix-channel --add https://github.com/nix-community/home-manager/archive/release-24.05.tar.gz home-manager
+
+sudo nix-channel --update
     # Erstellen der Verzeichnisse
     mkdir -p /home/tom/.config
     mkdir -p /home/tom/.config/polybar
