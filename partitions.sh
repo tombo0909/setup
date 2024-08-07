@@ -1,77 +1,61 @@
 #!/usr/bin/env bash
+#
+# Define the disk and partition variables
+DISK="/dev/nvme0n1"  # Set this to the correct disk (e.g., /dev/sda)
+BOOT_PARTITION="${DISK}p1"
+LVM_PARTITION="${DISK}p2"
+
+# Delete all partitions on the disk
+sgdisk --zap-all $DISK
+
+# Create the EFI boot partition
+sgdisk -n 1:0:+1G -t 1:ef00 $DISK
+
+# Create the LVM partition with a size of 250 GB
+sgdisk -n 2:0:+250G -t 2:8e00 $DISK
+
+# Print the partition table to verify
+sgdisk -p $DISK
+
+# Inform the user that the script has finished partitioning
+echo "Partitioning complete. Proceeding with LUKS setup."
+
+# You will be asked to enter your passphrase - DO NOT FORGET THIS
+cryptsetup luksFormat $LVM_PARTITION
+
+# Decrypt the encrypted partition and call it nixos-enc. The decrypted partition
+# will get mounted at /dev/mapper/nixos-enc
+cryptsetup luksOpen $LVM_PARTITION nixos-enc
+
+# Create the LVM physical volume using nixos-enc
+pvcreate /dev/mapper/nixos-enc
+
+# Create a volume group that will contain our root and swap partitions
+vgcreate nixos-vg /dev/mapper/nixos-enc
+
+# Create a logical volume for our root filesystem from all remaining free space.
+# Volume is labeled "root"
+lvcreate -l 100%FREE -n root nixos-vg
+
+# Create a FAT32 filesystem on our boot partition
+mkfs.vfat -n boot $BOOT_PARTITION
+
+# Create an ext4 filesystem for our root partition
+mkfs.ext4 -L nixos /dev/nixos-vg/root
+
+# Mount the root filesystem
+mount /dev/nixos-vg/root /mnt
+
+# Create and mount the boot directory
+mkdir /mnt/boot
+mount $BOOT_PARTITION /mnt/boot
+
+# Inform the user that the setup is complete
+echo "Setup complete. Root and boot filesystems are mounted."
+
+nixos-generate-config --root /mnt
+
+sudo cp $HOME/setup/configuration.nix /mnt/etc/nixos/configuration.nix
 
 
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <device>"
-    exit 1
-fi
-
-device=$1
-
-echo "Möchten Sie eine Full-Disk-Encryption durchführen? (ja/nein)"
-read encrypt
-
-if [ "$encrypt" != "ja" ]; then
-    echo "Verschlüsselung wird übersprungen."
-    exit 0
-fi
-
-echo "Wie viele Partitionen möchten Sie innerhalb der verschlüsselten Festplatte erstellen?"
-read partition_count
-
-declare -a partition_sizes
-for ((i=1; i<$partition_count; i++))
-do
-    echo "Geben Sie die Größe der Partition $i in MiB an:"
-    read size
-    partition_sizes+=($size)
-done
-
-# Letzte Partition
-echo "Soll die letzte Partition den gesamten restlichen Speicherplatz verwenden? (ja/nein)"
-read use_rest
-
-if [ "$use_rest" != "ja" ]; then
-    echo "Geben Sie die Größe der letzten Partition in MiB an:"
-    read size
-    partition_sizes+=($size)
-fi
-
-# Erstelle eine Partition, die den gesamten Speicher der Festplatte einnimmt
-echo "Erstellen der Partition..."
-parted $device -- mklabel gpt
-parted $device -- mkpart primary 1MiB 100%
-
-# Verschlüssele die gesamte Partition
-partition="${device}p1"
-echo "Verschlüsseln der Partition..."
-cryptsetup luksFormat $partition
-cryptsetup open $partition cryptroot
-
-# Erstelle ein physisches Volume, eine Volume-Gruppe und logische Volumes innerhalb der verschlüsselten Partition
-pvcreate /dev/mapper/cryptroot
-vgcreate vgcrypt /dev/mapper/cryptroot
-
-start=1
-for ((i=1; i<$partition_count; i++))
-do
-    lvcreate -L ${partition_sizes[$i-1]}MiB -n lv$i vgcrypt
-done
-
-if [ "$use_rest" == "ja" ]; then
-    lvcreate -l 100%FREE -n lv$partition_count vgcrypt
-else
-    lvcreate -L ${partition_sizes[$partition_count-1]}MiB -n lv$partition_count vgcrypt
-fi
-
-# Formatieren und Label zuweisen
-mkfs.fat -F 32 /dev/vgcrypt/lv1
-fatlabel /dev/vgcrypt/lv1 NIXBOOT
-mkfs.ext4 /dev/vgcrypt/lv2 -L NIXROOT
-
-# Mounten der Partitionen
-mount /dev/vgcrypt/lv2 /mnt
-mkdir -p /mnt/boot
-mount /dev/vgcrypt/lv1 /mnt/boot
-
-echo "Partitionierung und Verschlüsselung abgeschlossen. Fortfahren mit der NixOS-Installation."
+sed -i '/};/i\  boot.initrd.luks.devices = {\n    root = {\n      device = "/dev/nvme0n1p2";\n      preLVM = true;\n    };\n  };' /mnt/etc/nixos/configuration.nix

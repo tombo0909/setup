@@ -134,7 +134,7 @@
         naturalScrolling = false;
         tapping = true;
         accelProfile = "flat";
-        accelSpeed = "1.5";
+        accelSpeed = "1";
       };
     };
   
