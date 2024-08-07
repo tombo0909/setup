@@ -55,7 +55,7 @@ echo "Setup complete. Root and boot filesystems are mounted."
 
 nixos-generate-config --root /mnt
 
-sudo cp $HOME/setup/configuration.nix /mnt/etc/nixos/configuration.nix
+sudo cp /home/nixos/setup/configuration.nix /mnt/etc/nixos/configuration.nix
 
 
 sed -i '/};/i\  boot.initrd.luks.devices = {\n    root = {\n      device = "/dev/nvme0n1p2";\n      preLVM = true;\n    };\n  };' /mnt/etc/nixos/configuration.nix
