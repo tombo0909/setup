@@ -74,12 +74,9 @@ sudo mkdir -p /home/tom/.config/scripts
 sudo mkdir -p /home/tom/.config/i3
 sudo mkdir /home/tom/Pictures
 
-sudo ln -s /home/tom/setup/configuration.nix /etc/nixos/configuration.nix
 sudo ln -s /home/tom/setup/background.jpg /home/tom/.config/background.jpg
 sudo ln -s /home/tom/setup/polybar/launch.sh /home/tom/.config/polybar/launch.sh
 sudo ln -s /home/tom/setup/polybar/config.ini /home/tom/.config/polybar/config.ini
 sudo ln -s /home/tom/setup/scripts/setup-monitor.sh /home/tom/.config/scripts/setup-monitor.sh
-sudo ln -s /home/tom/setup/scripts/check-battery.sh /home/tom/.config/scripts/check-battery.sh
 sudo ln -s /home/tom/setup/i3/config /home/tom/.config/i3/config
-sudo ln -s /home/tom/setup/scripts/backup-home.sh /home/tom/.config/scripts/backup-home.sh
 
