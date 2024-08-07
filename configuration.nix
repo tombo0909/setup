@@ -71,6 +71,24 @@
   # };
 
 
+  system.activationScripts.customScript = ''
+    # Erstellen der Verzeichnisse
+    mkdir -p /home/tom/.config
+    mkdir -p /home/tom/.config/polybar
+    mkdir -p /home/tom/.config/scripts
+    mkdir -p /home/tom/.config/i3
+    mkdir -p /home/tom/Pictures
+
+    # Kopieren und Erstellen von symbolischen Links
+    cp -r /home/nixos/setup /home/tom/
+    cp /home/tom/setup/i3/config /home/tom/.config/i3/config
+    ln -s /home/tom/setup/background.jpg /home/tom/.config/background.jpg
+    ln -s /home/tom/setup/polybar/launch.sh /home/tom/.config/polybar/launch.sh
+    ln -s /home/tom/setup/polybar/config.ini /home/tom/.config/polybar/config.ini
+    ln -s /home/tom/setup/scripts/setup-monitor.sh /home/tom/.config/scripts/setup-monitor.sh
+    ln -s /home/tom/setup/i3/config /home/tom/.config/i3/config
+  '';
+
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
