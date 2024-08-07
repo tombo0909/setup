@@ -75,9 +75,10 @@ sudo mkdir -p /home/tom/.config/i3
 sudo mkdir /home/tom/Pictures
 
 sudo cp -r /home/nixos/setup /home/tom/
-sudo ln -s /home/tom/setup/background.jpg /home/tom/.config/background.jpg
-sudo ln -s /home/tom/setup/polybar/launch.sh /home/tom/.config/polybar/launch.sh
-sudo ln -s /home/tom/setup/polybar/config.ini /home/tom/.config/polybar/config.ini
-sudo ln -s /home/tom/setup/scripts/setup-monitor.sh /home/tom/.config/scripts/setup-monitor.sh
-sudo ln -s /home/tom/setup/i3/config /home/tom/.config/i3/config
+sudo cp /home/tom/setup/i3/config /home/tom/.config/i3/config
+#sudo ln -s /home/tom/setup/background.jpg /home/tom/.config/background.jpg
+#sudo ln -s /home/tom/setup/polybar/launch.sh /home/tom/.config/polybar/launch.sh
+#sudo ln -s /home/tom/setup/polybar/config.ini /home/tom/.config/polybar/config.ini
+#sudo ln -s /home/tom/setup/scripts/setup-monitor.sh /home/tom/.config/scripts/setup-monitor.sh
+#sudo ln -s /home/tom/setup/i3/config /home/tom/.config/i3/config
 
