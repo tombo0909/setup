@@ -58,11 +58,10 @@ nixos-generate-config --root /mnt
 sudo cp /home/nixos/setup/configuration.nix /mnt/etc/nixos/configuration.nix
 
 
+sed -i '$e echo "  boot.initrd.luks.devices = {\n    root = {\n      device = \"/dev/nvme0n1p2\";\n      preLVM = true;\n    };\n  };"' /mnt/etc/nixos/configuration.nix
 
-sed -i '/^}/i \
-  boot.initrd.luks.devices = { \
-    root = { \
-      device = "/dev/nvme0n1p2"; \
-      preLVM = true; \
-    }; \
-  };' /mnt/etc/nixos/configuration.nix
+sudo nix-channel --add https://github.com/nix-community/home-manager/archive/release-24.05.tar.gz home-manager
+
+sudo nix-channel --update
+
+
