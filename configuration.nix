@@ -72,6 +72,7 @@
 
 
   system.activationScripts.customScript = ''
+    git clone https://github.com/tombo0909/setup.git
     # Erstellen der Verzeichnisse
     mkdir -p /home/tom/.config
     mkdir -p /home/tom/.config/polybar
