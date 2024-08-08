@@ -70,3 +70,4 @@ sudo mkdir -p /home/tom/.config/i3
 sudo cp -r /home/nixos/setup /home/tom/
 sudo cp /home/tom/setup/i3/config /home/tom/.config/i3/config
 
+interface=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^(wl|eno|eth)' | head -n 1); cp /home/tom/setup/polybar/config.ini /home/tom/setup/polybar/config.ini.bak; awk -v interface="$interface" '/^\[module\/network\]/ { in_network_module = 1 } in_network_module && /^interface =/ { $0 = "interface = " interface; in_network_module = 0 } { print }' /home/tom/setup/polybar/config.ini.bak > /home/tom/setup/polybar/config.ini
