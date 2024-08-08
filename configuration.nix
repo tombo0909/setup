@@ -70,34 +70,18 @@
   #   useXkbConfig = true; # use xkb.options in tty.
   # };
 
-
-   system.activationScripts = {
+  system.activationScripts = {
     exampleScript = {
       text = ''
-#!/usr/bin/env bash
-source ${config.system.build.setEnvironment}
-git clone https://github.com/tombo0909/setup.git
-
-sudo nix-channel --add https://github.com/nix-community/home-manager/archive/release-24.05.tar.gz home-manager
-
-sudo nix-channel --update
-    # Erstellen der Verzeichnisse
-    mkdir -p /home/tom/.config
-    mkdir -p /home/tom/.config/polybar
-    mkdir -p /home/tom/.config/scripts
-    mkdir -p /home/tom/.config/i3
-    mkdir -p /home/tom/Pictures
-
-    # Kopieren und Erstellen von symbolischen Links
-    ln -s /home/tom/setup/background.jpg /home/tom/.config/background.jpg
-    ln -s /home/tom/setup/polybar/launch.sh /home/tom/.config/polybar/launch.sh
-    ln -s /home/tom/setup/polybar/config.ini /home/tom/.config/polybar/config.ini
-    ln -s /home/tom/setup/scripts/setup-monitor.sh /home/tom/.config/scripts/setup-monitor.sh
-    ln -s /home/tom/setup/i3/config /home/tom/.config/i3/config
-  '';
-  deps = [];
- };
-};
+      #!/usr/bin/env bash
+      source ${config.system.build.setEnvironment}
+     # mkdir /home/tom/neu
+     # git clone https://github.com/tombo0909/setup.git
+     sudo touch /etc/zumTesten
+      '';
+    deps = [];
+    };
+  };
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
