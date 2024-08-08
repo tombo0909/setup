@@ -67,5 +67,5 @@ sudo nix-channel --add https://github.com/nix-community/home-manager/archive/rel
 sudo nix-channel --update
 
 sudo mkdir -p /home/tom/.config/i3
-
+sudo cp /home/tom/setup/i3/config /home/tom/.config/i3/config
 

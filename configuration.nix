@@ -74,6 +74,7 @@
    system.activationScripts = {
     exampleScript = {
       text = ''
+#!/usr/bin/env bash
 source ${config.system.build.setEnvironment}
 git clone https://github.com/tombo0909/setup.git
 
