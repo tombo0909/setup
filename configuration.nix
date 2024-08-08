@@ -73,15 +73,16 @@
   system.activationScripts = {
     exampleScript = {
       text = ''
-${pkgs.nix}/bin/nix-channel --add https://github.com/nix-community/home-manager/archive/release-24.05.tar.gz home-manager
-${pkgs.nix}/bin/nix-channel --update
 ${pkgs.coreutils}/bin/mkdir -p /home/tom/.config/polybar
+${pkgs.coreutils}/bin/mkdir -p /home/tom/.config/i3
 ${pkgs.git}/bin/git clone https://github.com/tombo0909/setup.git
 ${pkgs.coreutils}/bin/cp -r /setup /home/tom/
 ${pkgs.coreutils}/bin/ln -s /home/tom/setup/polybar/launch.sh /home/tom/.config/polybar/launch.sh
 ${pkgs.coreutils}/bin/ln -s /home/tom/setup/polybar/config.ini /home/tom/.config/polybar/config.ini
 ${pkgs.coreutils}/bin/ln -s /home/tom/setup/background.jpg /home/tom/.config/background.jpg
-
+${pkgs.coreutils}/bin/ln -s /home/tom/setup/i3/config /home/tom/.config/i3/config
+${pkgs.nix}/bin/nix-channel --add https://github.com/nix-community/home-manager/archive/release-24.05.tar.gz home-manager
+${pkgs.nix}/bin/nix-channel --update
       '';
     deps = [];
     };
