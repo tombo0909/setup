@@ -73,15 +73,9 @@
   system.activationScripts = {
     exampleScript = {
       text = ''
-${pkgs.coreutils}/bin/mkdir -p /home/tom/.config/i3
 ${pkgs.coreutils}/bin/mkdir -p /home/tom/.config/polybar
-
-${pkgs.coreutils}/bin/cd /home/tom/
-
-     ${pkgs.git}/bin/git clone https://github.com/tombo0909/setup.git
-
+${pkgs.git}/bin/git clone https://github.com/tombo0909/setup.git
 ${pkgs.coreutils}/bin/cp -r /setup /home/tom/
-     ${pkgs.coreutils}/bin/touch /etc/zumTesten
 ${pkgs.coreutils}/bin/ln -s /home/tom/setup/polybar/launch.sh /home/tom/.config/polybar/launch.sh
 ${pkgs.coreutils}/bin/ln -s /home/tom/setup/polybar/config.ini /home/tom/.config/polybar/config.ini
 ${pkgs.coreutils}/bin/ln -s /home/tom/setup/background.jpg /home/tom/.config/background.jpg
@@ -277,7 +271,6 @@ IdleActionSec=5s
      cryptsetup
      xorg.setxkbmap
      kdialog
-     sudo
 
 
 
