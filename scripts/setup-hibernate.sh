@@ -1,4 +1,4 @@
-#!/home/tom/.nix-profile/bin/bash
+#!/usr/bin/env bash
 #
 # Function to find the largest partition
 find_largest_partition() {

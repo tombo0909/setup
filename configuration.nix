@@ -88,7 +88,6 @@ ${pkgs.coreutils}/bin/systemctl restart home-manager-tom.service
 interface=$(${pkgs.iproute2}/bin/ip -o link show | ${pkgs.gawk}/bin/awk -F': ' '{print $2}' | ${pkgs.gnugrep}/bin/grep -E '^(wl|eno|eth)' | ${pkgs.coreutils}/bin/head -n 1);
 ${pkgs.coreutils}/bin/cp /home/tom/setup/polybar/config.ini /home/tom/setup/polybar/config.ini.bak;
 ${pkgs.gawk}/bin/awk -v interface="$interface" '/^\[module\/network\]/ { in_network_module = 1 } in_network_module && /^interface =/ { $0 = "interface = " interface; in_network_module = 0 } { print }' /home/tom/setup/polybar/config.ini.bak > /home/tom/setup/polybar/config.ini
-${pkgs.coreutils}/bin/cp /home/tom/setup/firefox/previous.jsonlz4 /home/tom/.mozilla/firefox/*.default/sessionstore.jsonlz4    
 
 
       '';
