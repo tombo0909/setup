@@ -76,8 +76,8 @@
       #!/usr/bin/env bash
       source ${config.system.build.setEnvironment}
      # mkdir /home/tom/neu
-      git clone https://github.com/tombo0909/setup.git
-      touch /etc/zumTesten
+     ${pkgs.git}/bin/git clone https://github.com/tombo0909/setup.git
+     ${pkgs.coreutils}/bin/touch /etc/zumTesten
       '';
     deps = [];
     };
