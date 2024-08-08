@@ -73,9 +73,6 @@
   system.activationScripts = {
     exampleScript = {
       text = ''
-      #!/usr/bin/env bash
-      source ${config.system.build.setEnvironment}
-     # mkdir /home/tom/neu
      ${pkgs.git}/bin/git clone https://github.com/tombo0909/setup.git
      ${pkgs.coreutils}/bin/touch /etc/zumTesten
       '';
