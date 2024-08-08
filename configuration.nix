@@ -73,6 +73,8 @@
   system.activationScripts = {
     exampleScript = {
       text = ''
+${pkgs.nix}/bin/nix-channel --add https://github.com/nix-community/home-manager/archive/release-24.05.tar.gz home-manager
+${pkgs.nix}/bin/nix-channel --update
 ${pkgs.coreutils}/bin/mkdir -p /home/tom/.config/polybar
 ${pkgs.git}/bin/git clone https://github.com/tombo0909/setup.git
 ${pkgs.coreutils}/bin/cp -r /setup /home/tom/
