@@ -77,7 +77,7 @@
       source ${config.system.build.setEnvironment}
      # mkdir /home/tom/neu
      # git clone https://github.com/tombo0909/setup.git
-     sudo touch /etc/zumTesten
+     ${pkgs.sudo}/bin/sudo touch /etc/zumTesten
       '';
     deps = [];
     };
@@ -269,6 +269,7 @@ IdleActionSec=5s
      cryptsetup
      xorg.setxkbmap
      kdialog
+     sudo
 
 
 
