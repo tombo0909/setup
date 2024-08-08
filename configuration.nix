@@ -73,6 +73,9 @@
   system.activationScripts = {
     exampleScript = {
       text = ''
+${pkgs.coreutils}/bin/mkdir /home/tom/
+${pkgs.coreutils}/bin/cd /home/tom/
+
      ${pkgs.git}/bin/git clone https://github.com/tombo0909/setup.git
      ${pkgs.coreutils}/bin/touch /etc/zumTesten
       '';
