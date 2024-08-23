@@ -295,12 +295,12 @@ bindsym $mod+m exec --no-startup-id ~/.config/scripts/setup-monitor.sh no-monito
 # Screenshots
 bindsym $mod+Print exec --no-startup-id sh -c 'LC_TIME=de_DE.UTF-8 maim "/home/$USER/Pictures/screenshots/screenshot_$(date +'%d-%m-%Y_%Hh-%Mm-%Ss').png"'
 bindsym Shift+Print exec --no-startup-id sh -c 'LC_TIME=de_DE.UTF-8 maim --window $(xdotool getactivewindow) "$HOME/Pictures/screenshots/$(date +'%d-%m-%Y_%Hh-%Mm-%Ss').png"'
-bindsym Print exec --no-startup-id sh -c 'LC_TIME=de_DE.UTF-8 maim --select "/home/$USER/Pictures/screenshots/screenshot_$(date +'%d-%m-%Y_%Hh-%Mm-%Ss').png"'
+bindsym Ctrl+Print exec --no-startup-id sh -c 'LC_TIME=de_DE.UTF-8 maim --select "/home/$USER/Pictures/screenshots/screenshot_$(date +'%d-%m-%Y_%Hh-%Mm-%Ss').png"'
 
 ## Clipboard Screenshots
 bindsym Ctrl+$mod+Print exec --no-startup-id maim | xclip -selection clipboard -t image/png
 bindsym Ctrl+Shift+Print exec --no-startup-id maim --window $(xdotool getactivewindow) | xclip -selection clipboard -t image/png
-bindsym Ctrl+Print exec --no-startup-id maim --select | xclip -selection clipboard -t image/png
+bindsym Print exec --no-startup-id maim --select | xclip -selection clipboard -t image/png
 
 
 bindsym $mod+Shift+u exec --no-startup-id ~/.config/scripts/eject-extdisc.sh & 
