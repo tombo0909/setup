@@ -1826,6 +1826,9 @@ if [[ ! $REPLY =~ ^[Nn]$ ]]; then
         
         # Firefox neu starten
         firefox &
+	sleep 0.5
+	i3-msg reload > /dev/null 2>&1
+	i3-msg restart > /dev/null 2>&1
         echo "Letzte Firefox-Sitzung wurde erfolgreich wiederhergestellt."
     else
         echo "Vorherige Sitzung nicht gefunden. Firefox wird nicht wiederhergestellt."
