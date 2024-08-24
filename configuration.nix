@@ -1728,6 +1728,8 @@ else
     echo "Git remote URL ist bereits korrekt."
 fi
 
+cd /home/tom/
+
 read -p "Möchten Sie das Repository klonen? (J/n): " -r
 echo
 if [[ ! $REPLY =~ ^[Nn]$ ]]; then
