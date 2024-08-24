@@ -4,7 +4,6 @@
 
 { config, lib, pkgs, ... }:
 
-
 {  
   imports =
     [ # Include the results of the hardware scan.
@@ -67,13 +66,7 @@
   system.activationScripts = {
     startScript = {
       text = ''
-${pkgs.coreutils}/bin/mkdir -p /home/tom/.config/polybar
-${pkgs.coreutils}/bin/mkdir -p /home/tom/.config/i3
-${pkgs.coreutils}/bin/mkdir -p /home/tom/.ssh
-${pkgs.coreutils}/bin/mkdir -p /home/tom/.config/scripts
-${pkgs.coreutils}/bin/mkdir -p /home/tom/Pictures/iphone
 ${pkgs.coreutils}/bin/mkdir -p /home/tom/Pictures/screenshots
-
 
 if [ ! -d "/home/tom/setup" ]; then
     ${pkgs.git}/bin/git clone https://github.com/tombo0909/setup.git /home/tom/setup
@@ -83,67 +76,16 @@ if [ ! -d "/home/tom/setup" ]; then
   ${pkgs.coreutils}/bin/cp -r /setup /home/tom/
 fi
 
-if [ ! -L "/home/tom/.config/polybar/launch.sh" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/polybar/launch.sh /home/tom/.config/polybar/launch.sh
-fi
-
-if [ ! -L "/home/tom/.config/polybar/config.ini" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/polybar/config.ini /home/tom/.config/polybar/config.ini
-fi
-
 if [ ! -L "/home/tom/.config/background.jpg" ]; then
   ${pkgs.coreutils}/bin/ln -s /home/tom/setup/background.jpg /home/tom/.config/background.jpg
-fi
-
-#if [ ! -L "/home/tom/.config/i3/config" ]; then
-#  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/i3/config /home/tom/.config/i3/config
-#fi
-
-if [ ! -L "/home/tom/.ssh/known_hosts" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/known_hosts /home/tom/.ssh/known_hosts
-fi
-
-if [ ! -L "/home/tom/.config/scripts/backup-home.sh" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/scripts/backup-home.sh /home/tom/.config/scripts/backup-home.sh
-fi
-
-if [ ! -L "/home/tom/.config/scripts/clean-generations.sh" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/scripts/clean-generations.sh /home/tom/.config/scripts/clean-generations.sh
-fi
-
-if [ ! -L "/home/tom/.config/scripts/setup-monitor.sh" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/scripts/setup-monitor.sh /home/tom/.config/scripts/setup-monitor.sh
-fi
-
-if [ ! -L "/home/tom/.config/scripts/update-system.sh" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/scripts/update-system.sh /home/tom/.config/scripts/update-system.sh
-fi
-
-if [ ! -L "/home/tom/.config/scripts/check-battery.sh" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/scripts/check-battery.sh /home/tom/.config/scripts/check-battery.sh
-fi
-
-if [ ! -L "/home/tom/.config/scripts/iphone-backup.sh" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/scripts/iphone-backup.sh /home/tom/.config/scripts/iphone-backup.sh
-fi
-
-if [ ! -L "/home/tom/.config/scripts/post-install.sh" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/scripts/post-install.sh /home/tom/.config/scripts/post-install.sh
-fi
-
-if [ ! -L "/home/tom/.config/scripts/eject-extdisc.sh" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/scripts/eject-extdisc.sh /home/tom/.config/scripts/eject-extdisc.sh
-fi
-
-if [ ! -L "/home/tom/.config/scripts/rechteck.py" ]; then
-  ${pkgs.coreutils}/bin/ln -s /home/tom/setup/scripts/rechteck.py /home/tom/.config/scripts/rechteck.py
 fi
 
 ${pkgs.coreutils}/bin/chown -R tom:users /home/tom
 interface=$(${pkgs.iproute2}/bin/ip -o link show | ${pkgs.gawk}/bin/awk -F': ' '{print $2}' | ${pkgs.gnugrep}/bin/grep -E '^(wl|eno|eth)' | ${pkgs.coreutils}/bin/head -n 1);
 ${pkgs.coreutils}/bin/cp /home/tom/setup/polybar/config.ini /home/tom/setup/polybar/config.ini.bak;
 ${pkgs.gawk}/bin/awk -v interface="$interface" '/^\[module\/network\]/ { in_network_module = 1 } in_network_module && /^interface =/ { $0 = "interface = " interface; in_network_module = 0 } { print }' /home/tom/setup/polybar/config.ini.bak > /home/tom/setup/polybar/config.ini
-
+${pkgs.coreutils}/bin/chown root:root /home/tom/setup/configuration.nix
+${pkgs.coreutils}/bin/chmod 644 /home/tom/setup/configuration.nix
 
       '';
     deps = [];
@@ -196,7 +138,7 @@ ${pkgs.gawk}/bin/awk -v interface="$interface" '/^\[module\/network\]/ { in_netw
   nixpkgs.config.pulseaudio = true;
   # OR
   # services.pipewire = {
-  #   enable = true;
+  #  enable = true;
   #   pulse.enable = true;
   # };
  
@@ -261,7 +203,7 @@ IdleActionSec=5s
   services.cron = {
     enable = true;
     systemCronJobs = [
-     "*/6 * * * * tom /home/tom/.config/scripts/check-battery.sh"
+     "*/6 * * * * tom check-battery.sh"
      "*/30 * * * * tom /home/tom/.config/scripts/backup-home.sh"
    ];
   };
@@ -463,6 +405,786 @@ alias privacy-mode='nix-shell -p qt5Full python310Packages.pyqt5 --run "python /
   };
 
 
+programs.gpg = {
+    enable = true;
+    publicKeys = [
+      {
+        text = '' 
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+=845V
+-----END PGP PUBLIC KEY BLOCK-----
+        '';
+      }
+      {
+        text = ''
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+=QN+e
+-----END PGP PUBLIC KEY BLOCK-----
+        '';
+      }
+    ];
+  };
+
+  services.polybar = {
+enable = true;
+
+script = ''
+#!/usr/bin/env bash
+# Terminate already running bar instances
+# If all your bars have ipc enabled, you can use 
+polybar-msg cmd quit
+# Otherwise you can use the nuclear option:
+# killall -q polybar
+
+# Launch bar1 and bar2
+#echo "---" | tee -a /tmp/polybar.log /tmp/polybar.log
+#polybar bar 2>&1 | tee -a /tmp/polybar.log & disown
+
+#echo "Bars launched..."
+
+if type "xrandr"; then
+  for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+    MONITOR=$m polybar --reload bar &
+  done
+else
+  polybar --reload bar &
+fi
+
+'';
+extraConfig = ''
+;==========================================================
+;
+;
+;   ██████╗  ██████╗ ██╗  ██╗   ██╗██████╗  █████╗ ██████╗
+;   ██╔══██╗██╔═══██╗██║  ╚██╗ ██╔╝██╔══██╗██╔══██╗██╔══██╗
+;   ██████╔╝██║   ██║██║   ╚████╔╝ ██████╔╝███████║██████╔╝
+;   ██╔═══╝ ██║   ██║██║    ╚██╔╝  ██╔══██╗██╔══██║██╔══██╗
+;   ██║     ╚██████╔╝███████╗██║   ██████╔╝██║  ██║██║  ██║
+;   ╚═╝      ╚═════╝ ╚══════╝╚═╝   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
+;
+;
+;   To learn more about how to configure Polybar
+;   go to https://github.com/polybar/polybar
+;
+;   The README contains a lot of information
+;
+;==========================================================
+
+[colors]
+background = #000000
+background-alt = #373B41
+foreground = #C5C8C6
+#;foregroud = #ffffff
+primary = #ffffff
+secondary = #8ABEB7
+alert = #A54242
+disabled = #707880
+
+[bar/bar]
+width = 100%
+height = 24pt
+radius = 6
+monitor = ''${env:MONITOR:}
+
+; dpi = 96
+
+background = ''${colors.background}
+foreground = ''${colors.foreground}
+
+line-size = 3pt
+
+border-size = 0pt
+border-color = #00000000
+
+padding-left = 0
+padding-right = 1
+
+module-margin = 1
+
+separator = |
+separator-foreground = ''${colors.disabled}
+
+font-0 = monospace;2
+font-1 = "Font Awesome 5 Brands:style=Regular:pixelsize=14;1"
+font-2 = "Font Awesome 6 Free:style=Regular:pixelsize=14;1"
+font-3 = "Font Awesome 6 Free Solid:style=Solid:pixelsize=14;1"
+font-4 = "Font Awesome 6 Brands:style=Regular:pixelsize=14;1"
+
+
+modules-left = xworkspaces menu-apps
+modules-center = date
+modules-right = pulseaudio network memory battery
+cursor-click = pointer
+cursor-scroll = ns-resize
+
+enable-ipc = true
+
+; wm-restack = generic
+; wm-restack = bspwm
+; wm-restack = i3
+
+; override-redirect = true
+
+[module/systray]
+type = internal/tray
+
+format-margin = 8pt
+tray-spacing = 16pt
+
+[module/xworkspaces]
+type = internal/xworkspaces
+
+pin-workspaces = true
+
+label-active = %name%
+label-active-background = ''${colors.background-alt}
+label-active-underline= ''${colors.primary}
+label-active-padding = 1
+
+label-active-foreground = ''${colors.primary}
+
+label-occupied = %name%
+label-occupied-padding = 1
+
+label-occupied-foreground = ''${colors.primary}
+
+label-urgent = %name%
+label-urgent-background = ''${colors.alert}
+label-urgent-padding = 1
+
+label-empty = %name%
+label-empty-foreground = ''${colors.disabled}
+label-empty-padding = 1
+
+[module/xwindow]
+type = internal/xwindow
+label = %title:0:60:...%
+
+[module/filesystem]
+type = internal/fs
+interval = 25
+
+mount-0 = /
+
+label-mounted = %{F#F0C674}%mountpoint%%{F-} %percentage_used%%
+
+label-unmounted = %mountpoint% not mounted
+label-unmounted-foreground = ''${colors.disabled}
+
+[module/pulseaudio]
+type = internal/pulseaudio
+
+;format-volume-prefix = "VOL "
+format-volume-prefix-foreground = ''${colors.primary}
+;format-volume = <label-volume>
+format-volume-foreground = ''${colors.primary}
+
+label-volume = %percentage%%
+
+;label-muted = muted
+label-muted =  muted
+;label-muted-foreground = ''${colors.disabled}
+
+; Available tags:
+;   <label-volume> (default)
+;   <ramp-volume>
+;   <bar-volume>
+format-volume = <ramp-volume> <label-volume>
+
+; Available tags:
+;   <label-muted> (default)
+;   <ramp-volume>
+;   <bar-volume>
+;format-muted = <label-muted>
+
+; Available tokens:
+;   %percentage% (default)
+;   %decibels%
+;label-volume = %percentage%%
+
+; Available tokens:
+;   %percentage% (default)
+;   %decibels%
+;label-muted = 🔇 muted
+label-muted-foreground = #666
+
+; Only applies if <ramp-volume> is used
+ramp-volume-0 = 
+ramp-volume-1 = 
+ramp-volume-2 = 
+
+; Right and Middle click
+click-right = pavucontrol
+; click-middle = 
+
+[module/xkeyboard]
+type = internal/xkeyboard
+blacklist-0 = num lock
+
+label-layout = %layout%
+label-layout-foreground = ''${colors.primary}
+
+label-indicator-padding = 2
+label-indicator-margin = 1
+label-indicator-foreground = ''${colors.background}
+label-indicator-background = ''${colors.secondary}
+
+[module/memory]
+type = internal/memory
+interval = 2
+format-prefix = "RAM "
+format-prefix-foreground = ''${colors.primary}
+label = %percentage_used:2%%
+label-foreground = ''${colors.primary} 
+
+[module/cpu]
+type = internal/cpu
+interval = 2
+format-prefix = "CPU "
+format-prefix-foreground = ''${colors.primary}
+label = %percentage:2%%
+
+[network-base]
+type = internal/network
+interval = 5
+format-connected = <label-connected>
+format-disconnected = <label-disconnected>
+label-disconnected = %{F#F0C674}%ifname%%{F#707880} disconnected
+
+
+[module/wlan]
+inherit = network-base
+interface-type = wireless
+label-connected =  %essid%
+#;label-connected = %{F#F0C674}%ifname%%{F-} %essid% %local_ip%
+label-connected-foreground = ''${colors.primary}
+
+
+[module/eth]
+inherit = network-base
+interface-type = wired
+label-connected = %{F#F0C674}%ifname%%{F-} %local_ip%
+
+[module/date]
+type = internal/date
+interval = 1
+
+date = %d.%m %H:%M
+date-alt = %A %d.%m.20%y %H:%M:%S
+
+label = %date%
+label-foreground = ''${colors.primary}
+
+[settings]
+screenchange-reload = true
+pseudo-transparency = true
+
+
+
+[module/battery]
+type = internal/battery
+
+; This is useful in case the battery never reports 100% charge
+; Default: 100
+full-at = 100
+
+; format-low once this charge percentage is reached
+; Default: 10
+; New in version 3.6.0
+low-at = 5
+
+; Use the following command to list batteries and adapters:
+; $ ls -1 /sys/class/power_supply/
+battery = BAT0
+adapter = ADP1
+
+; If an inotify event haven't been reported in this many
+; seconds, manually poll for new values.
+;
+; Needed as a fallback for systems that don't report events
+; on sysfs/procfs.
+;
+; Disable polling by setting the interval to 0.
+;
+; Default: 5
+poll-interval = 1
+
+; see "man date" for details on how to format the time string
+; NOTE: if you want to use syntax tags here you need to use %%{...}
+; Default: %H:%M:%S
+time-format = %H:%M
+
+; Available tags:
+;   <label-charging> (default)
+;   <bar-capacity>
+;   <ramp-capacity>
+;   <animation-charging>
+format-charging = <animation-charging> <label-charging>
+;format-charging = <label-charging>
+
+; Available tags:
+;   <label-discharging> (default)
+;   <bar-capacity>
+;   <ramp-capacity>
+;   <animation-discharging>
+format-discharging = <ramp-capacity> <label-discharging>
+
+; Available tags:
+;   <label-full> (default)
+;   <bar-capacity>
+;   <ramp-capacity>
+format-full = <ramp-capacity> <label-full>
+
+; Format used when battery level drops to low-at
+; If not defined, format-discharging is used instead.
+; Available tags:
+;   <label-low>
+;   <animation-low>
+;   <bar-capacity>
+;   <ramp-capacity>
+; New in version 3.6.0
+format-low = <animation-low> <label-low>
+;format-low = <animation-low>
+
+; Available tokens:
+;   %percentage% (default) - is set to 100 if full-at is reached
+;   %percentage_raw%
+;   %time%
+;   %consumption% (shows current charge rate in watts)
+;label-charging = Charging %percentage%%
+;label-charging =  %percentage%%
+label-charging = %percentage%%
+label-charging-foreground = ''${colors.primary}
+
+; Available tokens:
+;   %percentage% (default) - is set to 100 if full-at is reached
+;   %percentage_raw%
+;   %time%
+;   %consumption% (shows current discharge rate in watts)
+;label-discharging = Discharging %percentage%%
+label-discharging = %percentage%%
+label-discharging-foreground = ''${colors.primary}
+
+; Available tokens:
+;   %percentage% (default) - is set to 100 if full-at is reached
+;   %percentage_raw%
+label-full = %percentage_raw%%
+label-full-foreground = ''${colors.primary}
+
+; Available tokens:
+;   %percentage% (default) - is set to 100 if full-at is reached
+;   %percentage_raw%
+;   %time%
+;   %consumption% (shows current discharge rate in watts)
+; New in version 3.6.0
+;label-low = BATTERY LOW
+label-low = %percentage%%
+
+; Only applies if <ramp-capacity> is used
+ramp-capacity-0 = 
+ramp-capacity-1 = 
+ramp-capacity-2 = 
+ramp-capacity-3 = 
+ramp-capacity-4 = 
+
+; Only applies if <bar-capacity> is used
+bar-capacity-width = 10
+
+; Only applies if <animation-charging> is used
+animation-charging-0 = 
+animation-charging-1 = 
+animation-charging-2 = 
+animation-charging-3 = 
+animation-charging-4 = 
+; Framerate in milliseconds
+animation-charging-framerate = 750
+
+; Only applies if <animation-discharging> is used
+animation-discharging-0 = 
+animation-discharging-1 = 
+animation-discharging-2 = 
+animation-discharging-3 = 
+animation-discharging-4 = 
+; Framerate in milliseconds
+animation-discharging-framerate = 500
+
+; Only applies if <animation-low> is used
+; New in version 3.6.0
+animation-low-0 = ! 
+animation-low-1 = 
+animation-low-framerate = 1000
+
+
+[module/menu-apps]
+type = custom/menu
+expand-right = true
+
+label-open = 
+label-close = X
+label-separator = |
+format-spacing = 1
+
+menu-0-0 = 
+menu-0-0-exec = sh -c 'echo -e "firefox\\nobsidian\\nspotify\\nkitty\\nyubioath-flutter\\nkeepassxc\\nykman-gui\\nanki\\ncode\\nidea-ultimate\\nVirtualBox\\nnmtui\\nnetworkmanager_dmenu\\nblueman-manager\\npavucontrol\\narandr" | dmenu -i -p "Run: " | xargs -r -I {} sh -c "{} &"'
+menu-0-1 = 
+menu-0-1-exec = menu-open-1
+menu-0-2 =  
+menu-0-2-exec = kitty ranger 
+menu-0-3 =  
+menu-0-3-exec = kitty -e nmtui
+menu-0-4 = 
+menu-0-4-exec = blueman-manager &
+menu-0-5 = 
+menu-0-5-exec = pavucontrol &
+menu-0-6 = 
+menu-0-6-exec = menu-open-3
+menu-0-7 = 
+menu-0-7-exec = menu-open-4
+menu-0-8 =   
+menu-0-8-exec = menu-open-5
+menu-0-9 = 
+menu-0-9-exec = menu-open-6
+menu-0-10 = 
+menu-0-10-exec = menu-open-7
+menu-0-11 = 
+menu-0-11-exec = menu-open-2
+
+menu-2-6 = Reboot
+menu-2-6-exec = systemctl reboot
+menu-2-7 = Shutdown
+menu-2-7-exec = systemctl poweroff
+menu-2-1 = Logout (i3)
+menu-2-1-exec = i3-msg exit
+menu-2-0 = Lock
+menu-2-0-exec = betterlockscreen -l
+menu-2-5 = Hibernate
+menu-2-5-exec = systemctl hibernate
+menu-2-3 = Suspend-then-Hibernate
+menu-2-3-exec = systemctl suspend-then-hibernate
+menu-2-4 = Hybrid-Sleep
+menu-2-4-exec = systemctl hybrid-sleep
+menu-2-2 = Suspend
+menu-2-2-exec = systemctl suspend
+
+
+menu-3-0 = +
+menu-3-0-exec = brightnessctl set +10%
+menu-3-1 = -
+menu-3-1-exec = brightnessctl set 10%-
+
+menu-1-0 = 
+menu-1-0-exec = kitty
+menu-1-1 = 
+menu-1-1-exec = spotify &
+menu-1-2 = 
+menu-1-2-exec = firefox &
+menu-1-3 = Obsidian
+menu-1-3-exec = obsidian &
+menu-1-4 = Yubikey-Auth
+menu-1-4-exec = yubioath-flutter &
+menu-1-5 = Yubikey-Man
+menu-1-5-exec = ykman-gui &
+menu-1-6 = Anki
+menu-1-6-exec = anki-bin &
+menu-1-7 = Vscode
+menu-1-7-exec = code &
+menu-1-8 = Intellij
+menu-1-8-exec = idea-ultimate &
+menu-1-9 = VirtualBox
+menu-1-9-exec = VirtualBox &
+
+
+
+menu-4-0 = settings
+menu-4-0-exec = arandr &
+menu-4-1 = monitor (l) ext
+menu-4-1-exec = setup-monitor.sh monitor left-of extend &
+menu-4-2 = monitor (l) mir
+menu-4-2-exec = setup-monitor.sh monitor left-of mirror &
+menu-4-3 = monitor (r) ext
+menu-4-3-exec = setup-monitor.sh monitor right-of extend &
+menu-4-4 = monitor (r) mir
+menu-4-4-exec = setup-monitor.sh monitor right-of mirror &
+menu-4-5 = no monitor
+menu-4-5-exec = setup-monitor.sh no-monitor &
+
+menu-5-0 = file full 
+menu-5-0-exec = sh -c 'LC_TIME=de_DE.UTF-8 maim "/home/$USER/Pictures/screenshot_$(date +'%d-%m-%Y_%Hh-%Mm-%Ss').png"'
+menu-5-1 = file wdw 
+menu-5-1-exec = maim --window $(xdotool getactivewindow) | xclip -selection clipboard -t image/png
+menu-5-2 = file sel 
+menu-5-2-exec = sh -c 'LC_TIME=de_DE.UTF-8 maim --select "/home/$USER/Pictures/screenshot_$(date +'%d-%m-%Y_%Hh-%Mm-%Ss').png"'
+menu-5-3 = cpb full 
+menu-5-3-exec = maim | xclip -selection clipboard -t image/png 
+menu-5-4 = cpb wdw 
+menu-5-4-exec = maim --window $(xdotool getactivewindow) | xclip -selection clipboard -t image/png
+menu-5-5 = cpb sel 
+menu-5-5-exec = maim --select | xclip -selection clipboard -t image/png 
+
+menu-6-0 = eject Toshiba-2TB
+menu-6-0-exec = eject-extdisc.sh
+menu-6-1 = backup Iphone
+menu-6-1-exec = iphone-backup.sh
+
+menu-7-0 = privacy-mode
+menu-7-0-exec = menu-open-8
+
+menu-8-0 = Rechteck hinzufügen
+menu-8-0-exec = create-rectangle.py
+menu-8-1 = Mode beenden
+menu-8-1-exec = pkill -f rectangle.py
+
+
+[module/network]
+type = internal/network
+; Name of the network interface to display. You can get the names of the
+; interfaces on your machine with `ip link`
+; Wireless interfaces often start with `wl` and ethernet interface with `eno` or `eth`
+interface = 
+
+; If no interface is specified, polybar can detect an interface of the given type.
+; If multiple are found, it will prefer running interfaces and otherwise just
+; use the first one found.
+; Either 'wired' or 'wireless'
+; New in version 3.6.0
+interface-type = wireless
+
+; Seconds to sleep between updates
+; Default: 1
+interval = 3.0
+
+; NOTE: Experimental (might change or be removed in the future)
+; Test connectivity every Nth update by pinging 8.8.8.8
+; In case the ping fails 'format-packetloss' is used until the next ping
+; A value of 0 disables the feature
+; Default: 0
+;ping-interval = 3
+
+; @deprecated: Define min width using token specifiers (%downspeed:min% and %upspeed:min%)
+; Minimum output width of upload/download rate
+; Default: 3
+udspeed-minwidth = 5
+
+; Accumulate values from all interfaces
+; when querying for up/downspeed rate
+; Default: false
+accumulate-stats = true
+
+; Consider an `UNKNOWN` interface state as up.
+; Some devices like USB network adapters have 
+; an unknown state, even when they're running
+; Default: false
+unknown-as-up = true
+
+; The unit used for displaying network speeds
+; For example if set to the empty string, a speed of 5 KB/s is displayed as 5 K
+; Default: B/s
+; New in version 3.6.0
+speed-unit = ' '
+
+; Available tags:
+;   <label-connected> (default)
+;   <ramp-signal>
+;format-connected = <ramp-signal> <label-connected>
+format-connected = <label-connected>
+
+; Available tags:
+;   <label-disconnected> (default)
+format-disconnected = <label-disconnected>
+
+; Used when connected, but ping fails (see ping-interval)
+; Available tags:
+;   <label-connected> (default)
+;   <label-packetloss>
+;   <animation-packetloss>
+format-packetloss = <animation-packetloss> <label-connected>
+
+; All labels support the following tokens:
+;   %ifname%    [wireless+wired]
+;   %local_ip%  [wireless+wired]
+;   %local_ip6% [wireless+wired]
+;   %essid%     [wireless]
+;   %signal%    [wireless]
+;   %upspeed%   [wireless+wired]
+;   %downspeed% [wireless+wired]
+;   %netspeed%  [wireless+wired] (%upspeed% + %downspeed%) (New in version 3.6.0)
+;   %linkspeed% [wired]
+;   %mac%       [wireless+wired] (New in version 3.6.0)
+
+; Default: %ifname% %local_ip%
+;label-connected = %essid% %signal%%
+label-connected = %essid%
+label-connected-foreground = ''${colors.primary}
+
+; Default: (none)
+label-disconnected = not connected
+label-disconnected-foreground = ''${colors.primary}
+
+; Default: (none)
+;label-packetloss = %essid%
+;label-packetloss-foreground = #eefafafa
+
+; Only applies if <ramp-signal> is used
+ramp-signal-0 = "|"
+ramp-signal-1 = "||"
+ramp-signal-2 = "|||"
+ramp-signal-3 = "||||"
+ramp-signal-4 = "|||||"
+ramp-signal-5 = "||||||"
+
+; Only applies if <animation-packetloss> is used
+animation-packetloss-0 = ⚠
+animation-packetloss-0-foreground = #ffa64c
+animation-packetloss-1 = 📶
+animation-packetloss-1-foreground = #000000
+; Framerate in milliseconds
+animation-packetloss-framerate = 500
+
+[module/backlight]
+type = internal/backlight
+
+; Use the following command to list available cards:
+; $ ls -1 /sys/class/backlight/
+; Default: first usable card in /sys/class/backlight (new in version 3.7.0)
+card = intel_backlight
+
+; Use the `/sys/class/backlight/.../actual-brightness` file
+; rather than the regular `brightness` file.
+; New in version 3.6.0
+; Changed in version: 3.7.0: Defaults to true also on amdgpu backlights
+; Default: true
+use-actual-brightness = true
+
+; Interval in seconds after which after which the current brightness is read
+; (even if no update is detected).
+; Use this as a fallback if brightness updates are not registering in polybar
+; (which happens if the use-actual-brightness is false).
+; There is no guarantee on the precisio of this timing.
+; Set to 0 to turn off
+; New in version 3.7.0
+; Default: 0 (5 if use-actual-brightness is false)
+poll-interval = 0
+
+; Enable changing the backlight with the scroll wheel
+; NOTE: This may require additional configuration on some systems. Polybar will
+; write to `/sys/class/backlight/''${self.card}/brightness` which requires polybar
+; to have write access to that file.
+; DO NOT RUN POLYBAR AS ROOT. 
+; The recommended way is to add the user to the
+; `video` group and give that group write-privileges for the `brightness` file.
+; See the ArchWiki for more information:
+; https://wiki.archlinux.org/index.php/Backlight#ACPI
+; Default: false
+enable-scroll = true
+
+; Interval for changing the brightness (in percentage points).
+; New in version 3.7.0
+; Default: 5
+scroll-interval = 10
+
+; Available tags:
+;   <label> (default)
+;   <ramp>
+;   <bar>
+format = <label>
+
+; Available tokens:
+;   %percentage% (default)
+label =  %percentage%%
+
+; Only applies if <ramp> is used
+ramp-0 = 🌕
+ramp-1 = 🌔
+ramp-2 = 🌓
+ramp-3 = 🌒
+ramp-4 = 🌑
+
+; Only applies if <bar> is used
+bar-width = 10
+bar-indicator = |
+bar-fill = ─
+bar-empty = ─
+
+; vim:ft=dosini
+
+
+'';
+};
+
 
   xsession.windowManager.i3 = {
     enable = true;
@@ -576,8 +1298,8 @@ exec --no-startup-id nm-applet
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +20% && $refresh_i3status
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -20% && $refresh_i3status
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
@@ -729,7 +1451,7 @@ bindsym $mod+r mode "resize"
 exec --no-startup-id xautolock -time 6 -locker "betterlockscreen -l" -corners -00- -detectsleep 
 exec --no-startup-id feh --bg-scale ~/.config/background.jpg
 exec --no-startup-id betterlockscreen -u ~/.config/background.jpg
-exec_always /home/tom/.config/polybar/launch.sh
+exec_always ~/.config/polybar/launch.sh
 #exec --no-startup-id xidlehook --not-when-fullscreen --timer 180 'betterlockscreen -l' ' ' 
 bindsym Mod1+l exec betterlockscreen -l
 
@@ -780,7 +1502,6 @@ bindsym F5 exec --no-startup-id brightnessctl -d tpacpi::kbd_backlight s 0
 bindsym $mod+Shift+bracketleft move workspace to output left
 bindsym $mod+Shift+bracketright move workspace to output right
 
-#exec_always --no-startup-id /home/tom/test.sh
 
 
 # Set touchpad sensitivity
@@ -822,8 +1543,8 @@ for_window [class="Spotify"] move to workspace number 1
 for_window [class="obsidian"] move to workspace number 2
 for_window [class="firefox"] move to workspace number 3
 
-bindsym $mod+Shift+m exec --no-startup-id ~/.config/scripts/setup-monitor.sh monitor left-of extend &
-bindsym $mod+m exec --no-startup-id ~/.config/scripts/setup-monitor.sh no-monitor &
+bindsym $mod+Shift+m exec --no-startup-id setup-monitor.sh monitor left-of extend &
+bindsym $mod+m exec --no-startup-id setup-monitor.sh no-monitor &
 
 
 # Screenshots
@@ -837,7 +1558,7 @@ bindsym Ctrl+Shift+Print exec --no-startup-id maim --window $(xdotool getactivew
 bindsym Ctrl+Print exec --no-startup-id maim --select | xclip -selection clipboard -t image/png
 
 
-bindsym $mod+Shift+u exec --no-startup-id ~/.config/scripts/eject-extdisc.sh &
+bindsym $mod+Shift+u exec --no-startup-id eject-extdisc.sh &
 '';
   };
    # The state version is required and should stay at the version you
@@ -899,6 +1620,21 @@ bindsym $mod+Shift+u exec --no-startup-id ~/.config/scripts/eject-extdisc.sh &
 
 
 
+
+
+
+
+
+ programs.ssh.knownHostsFiles = [
+    (pkgs.writeText "custom_known_hosts" ''
+      |1|38S5IADWl8VjK+kg0xobckBjymY=|4sdro5oLsyp/BFpXZ48IUUngm5I= ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
+      |1|ziSj2yZw0ruiOCIQ7WFgqH+ERYw=|3Y362JD0kSeVvTNUWVeQDtrLqbI= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+      |1|ez2Jn4SoYJmdI2m0twF82ylz47Q=|IeeY4pGnlNat+kTbQzaq7Fvp8us= ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+    '')
+  ];
+
+
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -956,7 +1692,8 @@ bindsym $mod+Shift+u exec --no-startup-id ~/.config/scripts/eject-extdisc.sh &
       ];
     })
 
-    (pkgs.writeShellScriptBin "post-install-test" ''
+
+    (pkgs.writeShellScriptBin "post-install-test.sh" ''
 #!/usr/bin/env bash
 
 # Überprüfen der Internetverbindung
@@ -1280,7 +2017,7 @@ else
 fi
     '')
 
- (pkgs.writeShellScriptBin "backup-home" ''
+ (pkgs.writeShellScriptBin "backup-home.sh" ''
 #!/usr/bin/env bash
 lockfile="/tmp/rsync.lock"
 
@@ -1296,7 +2033,7 @@ rsync -av --exclude=".cache" $HOME /run/media/toshiba-2TB/backup/laptop/notrefre
     rm "$lockfile"
 fi
   '')
- (pkgs.writeShellScriptBin "check-battery" ''
+ (pkgs.writeShellScriptBin "check-battery.sh" ''
 #!/usr/bin/env bash
 
 # Funktion zur Überprüfung des Batteriestatus
@@ -1318,7 +2055,7 @@ check_battery_status
 
   '')
 
- (pkgs.writeShellScriptBin "eject-extdisc" ''
+ (pkgs.writeShellScriptBin "eject-extdisc.sh" ''
 #!/usr/bin/env bash
 #
 
@@ -1357,7 +2094,7 @@ echo "$SUDO_PASSWORD" | sudo -S udisksctl power-off -b "$DEVICE"
 '')
 
 
-(pkgs.writeShellScriptBin "iphone-backup" ''
+(pkgs.writeShellScriptBin "iphone-backup.sh" ''
 #!/usr/bin/env bash
 
 lockfile="/tmp/rsync_ifuse.lock"
@@ -1426,7 +2163,7 @@ echo "Alle HEIC-Dateien wurden gelöscht."
   '')
 
 
-(pkgs.writeShellScriptBin "setup-monitor" ''
+(pkgs.writeShellScriptBin "setup-monitor.sh" ''
 #!/usr/bin/env bash
 
 # Liste der erlaubten Geräteseriennummern
@@ -1538,7 +2275,7 @@ else
 fi
   '')
 
-(pkgs.writeShellScriptBin "clean-generations" ''
+(pkgs.writeShellScriptBin "clean-generations.sh" ''
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -1783,7 +2520,7 @@ else
     choose "y" "Do you want to delete these? [Y/n]: "
 fi
   '')
-(pkgs.writeShellScriptBin "setup-hibernation" ''
+(pkgs.writeShellScriptBin "setup-hibernation.sh" ''
 #!/usr/bin/env bash
 
 # Swap-Datei und Resume-Konfiguration (keine Benutzerabfrage)
@@ -1868,7 +2605,7 @@ else
 fi
   '')
 
-(pkgs.writeShellScriptBin "update-system" ''
+(pkgs.writeShellScriptBin "update-system.sh" ''
 #!/usr/bin/env bash
 # Datum des letzten Ausführens: 15.08.2024
 
@@ -2374,6 +3111,167 @@ fi
 
 exit
   '')
+
+
+
+
+(let
+  pythonScript = pkgs.writeTextFile {
+    name = "rectangle.py";
+    text = ''
+#!/usr/bin/env python3
+import sys
+from PyQt5 import QtWidgets, QtCore, QtGui
+
+class ResizableRectangle(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setGeometry(300, 300, 200, 100)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.X11BypassWindowManagerHint)
+
+        self.dragging = False
+        self.resizing = False
+        self.margin = 7  # Ändern um minimale Groesse des Rechtecks und Empfindlichkeit an den Ecken/Kanten zu veraendern 
+        self.resize_direction = None
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.detect_resize_direction(event)
+            if self.resize_direction:
+                self.resizing = True
+                self.resize_start_pos = event.globalPos()
+                self.resize_start_geometry = self.geometry()
+            else:
+                self.dragging = True
+                self.drag_start_pos = event.globalPos() - self.frameGeometry().topLeft()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self.dragging:
+            self.move(event.globalPos() - self.drag_start_pos)
+            event.accept()
+        elif self.resizing:
+            self.perform_resize(event)
+            event.accept()
+        else:
+            self.update_cursor_shape(event)
+
+    def mouseReleaseEvent(self, event):
+        self.dragging = False
+        self.resizing = False
+        self.resize_direction = None
+        event.accept()
+
+    def detect_resize_direction(self, event):
+        rect = self.rect()
+        x, y, w, h = rect.x(), rect.y(), rect.width(), rect.height()
+        mx, my = event.x(), event.y()
+
+        if mx <= self.margin and my <= self.margin:
+            self.resize_direction = 'top_left'
+        elif mx >= w - self.margin and my <= self.margin:
+            self.resize_direction = 'top_right'
+        elif mx <= self.margin and my >= h - self.margin:
+            self.resize_direction = 'bottom_left'
+        elif mx >= w - self.margin and my >= h - self.margin:
+            self.resize_direction = 'bottom_right'
+        elif mx <= self.margin:
+            self.resize_direction = 'left'
+        elif mx >= w - self.margin:
+            self.resize_direction = 'right'
+        elif my <= self.margin:
+            self.resize_direction = 'top'
+        elif my >= h - self.margin:
+            self.resize_direction = 'bottom'
+        else:
+            self.resize_direction = None
+
+    def perform_resize(self, event):
+        if not self.resize_direction:
+            return
+
+        delta = event.globalPos() - self.resize_start_pos
+        geom = self.resize_start_geometry
+
+        if self.resize_direction == 'top_left':
+            new_geom = QtCore.QRect(geom.left() + delta.x(), geom.top() + delta.y(), geom.width() - delta.x(), geom.height() - delta.y())
+        elif self.resize_direction == 'top_right':
+            new_geom = QtCore.QRect(geom.left(), geom.top() + delta.y(), geom.width() + delta.x(), geom.height() - delta.y())
+        elif self.resize_direction == 'bottom_left':
+            new_geom = QtCore.QRect(geom.left() + delta.x(), geom.top(), geom.width() - delta.x(), geom.height() + delta.y())
+        elif self.resize_direction == 'bottom_right':
+            new_geom = QtCore.QRect(geom.left(), geom.top(), geom.width() + delta.x(), geom.height() + delta.y())
+        elif self.resize_direction == 'left':
+            new_geom = QtCore.QRect(geom.left() + delta.x(), geom.top(), geom.width() - delta.x(), geom.height())
+        elif self.resize_direction == 'right':
+            new_geom = QtCore.QRect(geom.left(), geom.top(), geom.width() + delta.x(), geom.height())
+        elif self.resize_direction == 'top':
+            new_geom = QtCore.QRect(geom.left(), geom.top() + delta.y(), geom.width(), geom.height() - delta.y())
+        elif self.resize_direction == 'bottom':
+            new_geom = QtCore.QRect(geom.left(), geom.top(), geom.width(), geom.height() + delta.y())
+
+        if new_geom.width() >= self.margin * 2 and new_geom.height() >= self.margin * 2:
+            self.setGeometry(new_geom)
+
+    def update_cursor_shape(self, event):
+        rect = self.rect()
+        x, y, w, h = rect.x(), rect.y(), rect.width(), rect.height()
+        mx, my = event.x(), event.y()
+
+        if mx <= self.margin and my <= self.margin:
+            self.setCursor(QtCore.Qt.SizeFDiagCursor)
+        elif mx >= w - self.margin and my <= self.margin:
+            self.setCursor(QtCore.Qt.SizeBDiagCursor)
+        elif mx <= self.margin and my >= h - self.margin:
+            self.setCursor(QtCore.Qt.SizeBDiagCursor)
+        elif mx >= w - self.margin and my >= h - self.margin:
+            self.setCursor(QtCore.Qt.SizeFDiagCursor)
+        elif mx <= self.margin:
+            self.setCursor(QtCore.Qt.SizeHorCursor)
+        elif mx >= w - self.margin:
+            self.setCursor(QtCore.Qt.SizeHorCursor)
+        elif my <= self.margin:
+            self.setCursor(QtCore.Qt.SizeVerCursor)
+        elif my >= h - self.margin:
+            self.setCursor(QtCore.Qt.SizeVerCursor)
+        else:
+            self.setCursor(QtCore.Qt.ArrowCursor)
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0)))
+        painter.drawRect(self.rect())
+
+class RectangleApp(QtWidgets.QApplication):
+    def __init__(self, argv):
+        super().__init__(argv)
+        self.rectangles = []
+
+    def add_rectangle(self):
+        rect = ResizableRectangle()
+        rect.show()
+        self.rectangles.append(rect)
+
+def main():
+    app = RectangleApp(sys.argv)
+    app.add_rectangle()
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
+    '';
+  };
+in
+
+# Ein Bash-Skript erstellen, das das Python-Skript ausführt
+pkgs.writeShellScriptBin "create-rectangle" ''
+#!/usr/bin/env bash
+nix-shell -p qt5Full python310Packages.pyqt5 --run "python ${pythonScript}"
+'')
+
+
 ];
 }
 
