@@ -81,9 +81,6 @@ if [ ! -L "/home/tom/.config/background.jpg" ]; then
 fi
 
 ${pkgs.coreutils}/bin/chown -R tom:users /home/tom
-interface=$(${pkgs.iproute2}/bin/ip -o link show | ${pkgs.gawk}/bin/awk -F': ' '{print $2}' | ${pkgs.gnugrep}/bin/grep -E '^(wl|eno|eth)' | ${pkgs.coreutils}/bin/head -n 1);
-${pkgs.coreutils}/bin/cp /home/tom/setup/polybar/config.ini /home/tom/setup/polybar/config.ini.bak;
-${pkgs.gawk}/bin/awk -v interface="$interface" '/^\[module\/network\]/ { in_network_module = 1 } in_network_module && /^interface =/ { $0 = "interface = " interface; in_network_module = 0 } { print }' /home/tom/setup/polybar/config.ini.bak > /home/tom/setup/polybar/config.ini
 ${pkgs.coreutils}/bin/chown root:root /home/tom/setup/configuration.nix
 ${pkgs.coreutils}/bin/chmod 644 /home/tom/setup/configuration.nix
 
@@ -1014,7 +1011,7 @@ type = internal/network
 ; Name of the network interface to display. You can get the names of the
 ; interfaces on your machine with `ip link`
 ; Wireless interfaces often start with `wl` and ethernet interface with `eno` or `eth`
-interface = 
+interface =  
 
 ; If no interface is specified, polybar can detect an interface of the given type.
 ; If multiple are found, it will prefer running interfaces and otherwise just
@@ -1451,7 +1448,7 @@ bindsym $mod+r mode "resize"
 exec --no-startup-id xautolock -time 6 -locker "betterlockscreen -l" -corners -00- -detectsleep 
 exec --no-startup-id feh --bg-scale ~/.config/background.jpg
 exec --no-startup-id betterlockscreen -u ~/.config/background.jpg
-exec_always ~/.config/polybar/launch.sh
+exec_always launch-polybar.sh
 #exec --no-startup-id xidlehook --not-when-fullscreen --timer 180 'betterlockscreen -l' ' ' 
 bindsym Mod1+l exec betterlockscreen -l
 
@@ -2604,6 +2601,28 @@ else
     sudo sed -i.bak '/^}$/i\  "resume_offset='"$offset"'" ];' "$config_file"
 fi
   '')
+(pkgs.writeShellScriptBin "launch-polybar.sh" ''
+#!/usr/bin/env bash
+# Terminate already running bar instances
+# If all your bars have ipc enabled, you can use 
+polybar-msg cmd quit
+# Otherwise you can use the nuclear option:
+# killall -q polybar
+
+# Launch bar1 and bar2
+#echo "---" | tee -a /tmp/polybar.log /tmp/polybar.log
+#polybar bar 2>&1 | tee -a /tmp/polybar.log & disown
+
+#echo "Bars launched..."
+
+if type "xrandr"; then
+  for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+    MONITOR=$m polybar --reload bar &
+  done
+else
+  polybar --reload bar &
+fi
+ '')
 
 (pkgs.writeShellScriptBin "update-system.sh" ''
 #!/usr/bin/env bash
