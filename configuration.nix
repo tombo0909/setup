@@ -1717,7 +1717,7 @@ fi
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-cd /home/tom/
+cd /home/tom/setup
 
 # Überprüfen, ob das Remote-Repository bereits gesetzt wurde
 REMOTE_URL=$(git remote get-url origin)
