@@ -201,7 +201,7 @@ IdleActionSec=5s
     enable = true;
     systemCronJobs = [
      "*/6 * * * * tom check-battery.sh"
-     "*/30 * * * * tom /home/tom/.config/scripts/backup-home.sh"
+     "*/30 * * * * tom backup-home.sh"
    ];
   };
 
@@ -329,8 +329,6 @@ alias gita='git add .'
 alias gitc='git commit -m "c"'
 alias gitp='git push'
 alias gitf='git add . && git commit -m "c" && git push'
-alias update-system='/home/tom/.config/scripts/update-system.sh'
-alias privacy-mode='nix-shell -p qt5Full python310Packages.pyqt5 --run "python /home/tom/rechteck.py"'
    '';
   };
 
@@ -1691,7 +1689,7 @@ bindsym $mod+Shift+u exec --no-startup-id eject-extdisc.sh &
     })
 
 
-    (pkgs.writeShellScriptBin "post-install-test.sh" ''
+    (pkgs.writeShellScriptBin "post-install.sh" ''
 #!/usr/bin/env bash
 
 # Überprüfen der Internetverbindung
@@ -1720,6 +1718,16 @@ fi
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 cd /home/tom/
+
+# Überprüfen, ob das Remote-Repository bereits gesetzt wurde
+REMOTE_URL=$(git remote get-url origin)
+if [ "$REMOTE_URL" != "git@github.com:tombo0909/setup.git" ]; then
+    git remote set-url origin git@github.com:tombo0909/setup.git
+    echo "Git remote URL wurde gesetzt."
+else
+    echo "Git remote URL ist bereits korrekt."
+fi
+
 read -p "Möchten Sie das Repository klonen? (J/n): " -r
 echo
 if [[ ! $REPLY =~ ^[Nn]$ ]]; then
