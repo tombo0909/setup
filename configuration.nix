@@ -1740,27 +1740,6 @@ fi
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-cd /home/tom/setup/
-
-# Überprüfen, ob das Remote-Repository bereits gesetzt wurde
-REMOTE_URL=$(git remote get-url origin)
-if [ "$REMOTE_URL" != "git@github.com:tombo0909/setup.git" ]; then
-    git remote set-url origin git@github.com:tombo0909/setup.git
-    echo "Git remote URL wurde gesetzt."
-else
-    echo "Git remote URL ist bereits korrekt."
-fi
-
-# Überprüfen, ob der Schlüssel bereits importiert wurde
-KEY_FINGERPRINT=$(gpg --with-colons --import-options show-only --import /home/tom/setup/public.key 2>/dev/null | grep '^fpr' | cut -d':' -f10)
-
-if gpg --list-keys | grep -q "$KEY_FINGERPRINT"; then
-    echo "Der GPG-Schlüssel ist bereits importiert."
-else
-    gpg --import /home/tom/setup/public.key
-    echo "Der GPG-Schlüssel wurde importiert."
-fi
-
 read -p "Möchten Sie das Repository entschlüsseln (J/n): " -r
 echo
 if [[ ! $REPLY =~ ^[Nn]$ ]]; then
