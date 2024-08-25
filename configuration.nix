@@ -3119,6 +3119,11 @@ if [[ $antwort == "y" || $antwort == "Y" ]]; then
 
   # Dateien ins lokale Repository kopieren
   cp -r /home/tom/.mozilla/firefox/*.default/sessionstore-backups/* /home/tom/data/firefox/
+  cp /home/tom/.mozilla/firefox/tom.default/key4.db /home/tom/data/firefox/settings/key4.db
+  cp /home/tom/.mozilla/firefox/tom.default/logins.json /home/tom/data/firefox/settings/logins.json
+  cp /home/tom/.mozilla/firefox/tom.default/user.js /home/tom/data/firefox/settings/user.js
+  cp /home/tom/.mozilla/firefox/tom.default/places.sqlite /home/tom/data/firefox/settings/places.sqlite
+  cp -r /home/tom/.mozilla/firefox/tom.default/extensions/ /home/tom/data/firefox/settings/
 
   # Änderungen committen und pushen
   git add .
