@@ -1000,7 +1000,7 @@ menu-7-0 = privacy-mode
 menu-7-0-exec = menu-open-8
 
 menu-8-0 = Rechteck hinzufügen
-menu-8-0-exec = create-rectangle.py
+menu-8-0-exec = create-rectangle
 menu-8-1 = Mode beenden
 menu-8-1-exec = pkill -f rectangle.py
 
