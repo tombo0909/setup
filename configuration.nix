@@ -212,12 +212,11 @@ IdleActionSec=5s
    
 
  
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users = {
    mutableUsers = false;
    users.tom = {
      isNormalUser = true;
-     extraGroups = [ "wheel" "networkmanager" ]; # Enable ‘sudo’ for the user.
+     extraGroups = [ "wheel" "networkmanager" ]; 
      hashedPassword = "$6$13/UxgqtVvIrUpnW$dd4GyMsqHhWmB26YMtlKnWDmNQecwTy2rZVwFKwVZ.7G78kX7Yg2HIOdIK3RmoJIKjCHwD8Fnr93Oj.lZswjY1";
      packages = with pkgs; [
        firefox
