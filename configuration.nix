@@ -111,6 +111,7 @@ ${pkgs.coreutils}/bin/chmod 644 /home/tom/setup/configuration.nix
      xset +dpms
      xset dpms 0 0 540
      xset s 0 0
+     xset r rate 280 45
     '';
 
 
@@ -200,23 +201,54 @@ IdleActionSec=5s
   services.cron = {
     enable = true;
     systemCronJobs = [
-     "*/6 * * * * tom check-battery.sh"
+     "*/2 * * * * tom check-battery.sh"
      "*/30 * * * * tom backup-home.sh"
    ];
   };
 
 
-  security.pam.services.login = {
+#security.pam = {
+#  services.login = {
+# };
+#  };
 
-  };
-   
+
+
+
+
+
+  security.pam.services.login.rules.auth = {
+    faillock_preauth = {
+      order = 100;
+      control = "required";
+      modulePath = "pam_faillock.so";
+      settings = {
+        preauth = true;
+        silent = true;
+        deny = "5";
+        unlock_time = "600"; # Sperre für 10 Minuten
+      };
+    };
+    faillock_authfail = {
+      order = 200;
+      control = "required";
+      modulePath = "pam_faillock.so";
+      settings = {
+        authfail = true;
+        deny = "5";
+        unlock_time = "600"; # Sperre für 10 Minuten
+      };
+    };
+ };
+
 
  
+  # Define a user account. Don't forget to set a password with ‘passwd’.
   users = {
    mutableUsers = false;
    users.tom = {
      isNormalUser = true;
-     extraGroups = [ "wheel" "networkmanager" ]; 
+     extraGroups = [ "wheel" "networkmanager" ]; # Enables ‘sudo’ for the user.
      hashedPassword = "$6$13/UxgqtVvIrUpnW$dd4GyMsqHhWmB26YMtlKnWDmNQecwTy2rZVwFKwVZ.7G78kX7Yg2HIOdIK3RmoJIKjCHwD8Fnr93Oj.lZswjY1";
      packages = with pkgs; [
        firefox
@@ -293,11 +325,11 @@ done
 
 
 
-  services.fprintd.enable = true;
+#  services.fprintd.enable = true;
 
-  services.fprintd.tod.enable = true;
+#  services.fprintd.tod.enable = true;
 
-  services.fprintd.tod.driver = pkgs.libfprint-2-tod1-goodix;
+#  services.fprintd.tod.driver = pkgs.libfprint-2-tod1-goodix;
 
   
   home-manager.users.tom = { pkgs, ... }: {
@@ -378,27 +410,31 @@ alias gitf='git add . && git commit -m "c" && git push'
 
 
   home.file.".config/keepassxc/keepassxc.ini" = {
-    text = ''
-    [General]
-    ConfigVersion=2
-    OpenPreviousDatabasesOnStartup=true
-
-
-    [Browser]
-    CustomProxyLocation=
-
-    [PasswordGenerator]
-    AdditionalChars=
-    ExcludedChars=
-    Lenght=25
-
-    [Security]
-    LockDatabaseIdle=true
-    LockDatabaseIdleSecond=240
+      text = ''
+      [General]
+      ConfigVersion=2
+      OpenPreviousDatabasesOnStartup=true
+  
+      [Browser]
+      CustomProxyLocation=
+      Enabled=true
+  
+      [PasswordGenerator]
+      AdditionalChars=
+      ExcludedChars=
+      Lenght=25
+  
+      [Security]
+      LockDatabaseIdle=true
+      LockDatabaseIdleSecond=240
+    
+      [SSHAgent]
+      Enabled=true
+  
       '';
-  };
+    };
 
-
+  
 programs.gpg = {
     enable = true;
     publicKeys = [
@@ -1545,12 +1581,12 @@ bindsym $mod+m exec --no-startup-id setup-monitor.sh no-monitor &
 # Screenshots
 bindsym $mod+Print exec --no-startup-id sh -c 'LC_TIME=de_DE.UTF-8 maim "/home/$USER/Pictures/screenshots/screenshot_$(date +'%d-%m-%Y_%Hh-%Mm-%Ss').png"'
 bindsym Shift+Print exec --no-startup-id sh -c 'LC_TIME=de_DE.UTF-8 maim --window $(xdotool getactivewindow) "$HOME/Pictures/screenshots/$(date +'%d-%m-%Y_%Hh-%Mm-%Ss').png"'
-bindsym Print exec --no-startup-id sh -c 'LC_TIME=de_DE.UTF-8 maim --select "/home/$USER/Pictures/screenshots/screenshot_$(date +'%d-%m-%Y_%Hh-%Mm-%Ss').png"'
+bindsym Ctrl+Print exec --no-startup-id sh -c 'LC_TIME=de_DE.UTF-8 maim --select "/home/$USER/Pictures/screenshots/screenshot_$(date +'%d-%m-%Y_%Hh-%Mm-%Ss').png"'
 
 ## Clipboard Screenshots
 bindsym Ctrl+$mod+Print exec --no-startup-id maim | xclip -selection clipboard -t image/png
 bindsym Ctrl+Shift+Print exec --no-startup-id maim --window $(xdotool getactivewindow) | xclip -selection clipboard -t image/png
-bindsym Ctrl+Print exec --no-startup-id maim --select | xclip -selection clipboard -t image/png
+bindsym Print exec --no-startup-id maim --select | xclip -selection clipboard -t image/png
 
 
 bindsym $mod+Shift+u exec --no-startup-id eject-extdisc.sh &
@@ -1625,6 +1661,10 @@ bindsym $mod+Shift+u exec --no-startup-id eject-extdisc.sh &
       |1|38S5IADWl8VjK+kg0xobckBjymY=|4sdro5oLsyp/BFpXZ48IUUngm5I= ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
       |1|ziSj2yZw0ruiOCIQ7WFgqH+ERYw=|3Y362JD0kSeVvTNUWVeQDtrLqbI= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
       |1|ez2Jn4SoYJmdI2m0twF82ylz47Q=|IeeY4pGnlNat+kTbQzaq7Fvp8us= ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+144.24.191.218 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMte/kGacIKN2tscKff4Yxpz2eAWhbcrPlmqJfbRqjN9
+144.24.191.218 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDZ5STJ/iUsG9jkQdmOQLrNMIPEzbK66qom8rTsYuyxbCKZKhYyucX1tJbk2Ip4vmzFux/0gpaZLkxq0sZO1142LjUJkb5J469F66mN1PutHyUxHG3ysUJUSTkA/IgcY3psAo9tmLO>
+144.24.191.218 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBLvzhygCUJnbS9WfgjP/dWr6b0ESgeUcq6zcUrf6/4IY2YqwcuMrvuXUT3pAEQkHEoDt0BwJR+2V7jDybF7+ep
+
     '')
   ];
 
@@ -1676,6 +1716,8 @@ bindsym $mod+Shift+u exec --no-startup-id eject-extdisc.sh &
      pciutils
      usbmuxd
      git-crypt
+     nodejs_22
+     syncthing
 
      qt5Full
      python310Packages.pyqt5
