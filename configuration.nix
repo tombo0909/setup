@@ -3159,7 +3159,7 @@ if [[ $antwort == "y" || $antwort == "Y" ]]; then
   cd /home/tom/data
 
   # Dateien ins lokale Repository kopieren
-  cp -r /home/tom/.mozilla/firefox/*.default/sessionstore-backups/* /home/tom/data/firefox/
+  cp -r /home/tom/.mozilla/firefox/*.default/sessionstore-backups/* /home/tom/data/firefox/session/
   cp /home/tom/.mozilla/firefox/tom.default/key4.db /home/tom/data/firefox/settings/key4.db
   cp /home/tom/.mozilla/firefox/tom.default/logins.json /home/tom/data/firefox/settings/logins.json
   cp /home/tom/.mozilla/firefox/tom.default/user.js /home/tom/data/firefox/settings/user.js
