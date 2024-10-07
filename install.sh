@@ -79,11 +79,16 @@ if [ "$INSTALLATION_TYPE" == "DEF" ]; then
     cd /mnt/
     sudo nixos-install
 
+
 else
     # Individuelle Installation
 
-    # Abfrage der Festplatte
+    # Abfrage der Festplatte und der Partitionen
     read -p "Geben Sie das Disk-Device ein (z.B. /dev/nvme0n1): " DISK
+
+    # Abfrage der genauen Partitionsnamen
+    read -p "Geben Sie die Partition für Boot ein (z.B. /dev/nvme0n1p1): " BOOT_PARTITION
+    read -p "Geben Sie die Partition für LVM oder Root ein (z.B. /dev/nvme0n1p2): " LVM_PARTITION
 
     # Abfrage der Anzahl der Partitionen
     read -p "Wie viele Partitionen möchten Sie erstellen? " PART_COUNT
@@ -106,7 +111,7 @@ else
             read -p "Geben Sie die Größe der Partition $i in MB ein (z.B. 102400 für 100GB): " SIZE_MB
             PARTITIONS[$i]="${SIZE_MB}M"
         fi
-        
+
         if [ $i -eq 1 ]; then
             LABEL_DEFAULT="boot"
             FS_DEFAULT="vfat"
@@ -136,10 +141,8 @@ else
     do
         if [ $i -eq 1 ]; then
             sgdisk -n $i:0:${PARTITIONS[$i]} -t $i:ef00 $DISK  # EFI Boot Partition
-            BOOT_PARTITION="${DISK}p$i"
         else
             sgdisk -n $i:0:${PARTITIONS[$i]} -t $i:8e00 $DISK  # LVM oder normale Partition
-            LVM_PARTITION="${DISK}p$i"
         fi
     done
 
