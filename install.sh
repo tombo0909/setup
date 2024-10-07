@@ -80,25 +80,25 @@ if [ "$INSTALLATION_TYPE" == "DEF" ]; then
     sudo nixos-install
 
 
+
 else
     # Individuelle Installation
 
-    # Abfrage der Festplatte und der Partitionen
+    # Abfrage der Festplatte und Partitionsnamen
     read -p "Geben Sie das Disk-Device ein (z.B. /dev/nvme0n1): " DISK
-
-    # Abfrage der genauen Partitionsnamen
-    read -p "Geben Sie die Partition für Boot ein (z.B. /dev/nvme0n1p1): " BOOT_PARTITION
-    read -p "Geben Sie die Partition für LVM oder Root ein (z.B. /dev/nvme0n1p2): " LVM_PARTITION
+    declare -A PARTITIONS
+    declare -A PART_NAMES
+    declare -A LABELS
+    declare -A FILESYSTEMS
 
     # Abfrage der Anzahl der Partitionen
     read -p "Wie viele Partitionen möchten Sie erstellen? " PART_COUNT
 
-    declare -A PARTITIONS
-    declare -A LABELS
-    declare -A FILESYSTEMS
-
     for (( i=1; i<=$PART_COUNT; i++ ))
     do
+        read -p "Geben Sie den Partitionsnamen für Partition $i ein (z.B. /dev/nvme0n1p1 oder /dev/sda1): " PART_NAME
+        PART_NAMES[$i]=$PART_NAME
+
         if [ $i -eq $PART_COUNT ]; then
             read -p "Möchten Sie den verbleibenden Speicherplatz für Partition $i verwenden (ja/nein)? " USE_REST
             if [ "$USE_REST" == "ja" ]; then
@@ -111,7 +111,7 @@ else
             read -p "Geben Sie die Größe der Partition $i in MB ein (z.B. 102400 für 100GB): " SIZE_MB
             PARTITIONS[$i]="${SIZE_MB}M"
         fi
-
+        
         if [ $i -eq 1 ]; then
             LABEL_DEFAULT="boot"
             FS_DEFAULT="vfat"
@@ -131,7 +131,7 @@ else
     done
 
     # Abfrage, ob die Festplatte verschlüsselt werden soll
-    read -p "Möchten Sie die Festplatte verschlüsseln (ja/nein)? " ENCRYPT
+    read -p "Möchten Sie das Disc-Device verschlüsseln (ja/nein)? " ENCRYPT
 
     # Löschen aller Partitionen auf der Festplatte
     sgdisk --zap-all $DISK
@@ -141,8 +141,10 @@ else
     do
         if [ $i -eq 1 ]; then
             sgdisk -n $i:0:${PARTITIONS[$i]} -t $i:ef00 $DISK  # EFI Boot Partition
+            BOOT_PARTITION="${PART_NAMES[$i]}"
         else
             sgdisk -n $i:0:${PARTITIONS[$i]} -t $i:8e00 $DISK  # LVM oder normale Partition
+            LVM_PARTITION="${PART_NAMES[$i]}"
         fi
     done
 
@@ -152,7 +154,7 @@ else
     # Erstellung der Dateisysteme und Labeln der Partitionen
     for (( i=1; i<=$PART_COUNT; i++ ))
     do
-        PARTITION="${DISK}p$i"
+        PARTITION="${PART_NAMES[$i]}"
         FS=${FILESYSTEMS[$i]}
         LABEL=${LABELS[$i]}
 
