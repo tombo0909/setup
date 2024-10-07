@@ -113,10 +113,10 @@ else
         fi
         
         if [ $i -eq 1 ]; then
-            LABEL_DEFAULT="boot"
+            LABEL_DEFAULT="BOOT"
             FS_DEFAULT="vfat"
         elif [ $i -eq 2 ]; then
-            LABEL_DEFAULT="nixos"
+            LABEL_DEFAULT="NIXOS"
             FS_DEFAULT="ext4"
         else
             LABEL_DEFAULT=""
