@@ -123,10 +123,10 @@ else
             FS_DEFAULT=""
         fi
 
-        read -p "Geben Sie das Label für Partition $i ein (Standard: $LABEL_DEFAULT): " LABEL
+        read -p "Geben Sie das Label für Partition $i ein (z.B.: $LABEL_DEFAULT): " LABEL
         LABELS[$i]=${LABEL:-$LABEL_DEFAULT}
 
-        read -p "Welches Dateisystem möchten Sie für Partition $i verwenden (Standard: $FS_DEFAULT)? " FS
+        read -p "Welches Dateisystem möchten Sie für Partition $i verwenden (z.B.: $FS_DEFAULT)? " FS
         FILESYSTEMS[$i]=${FS:-$FS_DEFAULT}
     done
 
